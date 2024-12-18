@@ -5,7 +5,7 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.*;
 
 public class Main {
-    private static Map<String, String> privateKeys = new HashMap<>(); // Store private key parts
+    private static Map<String, String> privateKeys = new HashMap<>();
     private static String encryptedName;
     private static PublicKey publicKey;
 
@@ -79,7 +79,7 @@ public class Main {
                 "I am known for creativity and artistic flair. Who am I?", // Keeper2
                 "I am a tech enthusiast who solves coding puzzles. Who am I?" // Keeper3
         };
-        String[] answers = {"Mathematician", "Artist", "Developer"}; // Replace with real-life key keepers
+        String[] answers = {"Mathematician", "Artist", "Developer"};
 
         for (int i = 0; i < riddles.length; i++) {
             System.out.println("\nRiddle " + (i + 1) + ": " + riddles[i]);
