@@ -1,6 +1,8 @@
 package org.example;
 
 import javax.crypto.Cipher;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -18,15 +20,26 @@ public class Main {
     private static String encryptedName;
     private static PublicKey publicKey;
 
+    private static String decrypt(String encryptedText, String secretKey) throws Exception {
+        byte[] decodedKey = Base64.getDecoder().decode(secretKey);
+        SecretKey originalKey = new SecretKeySpec(decodedKey, 0, decodedKey.length, "AES");
+
+        Cipher cipher = Cipher.getInstance("AES");
+        cipher.init(Cipher.DECRYPT_MODE, originalKey);
+
+        byte[] decryptedBytes = cipher.doFinal(Base64.getDecoder().decode(encryptedText));
+        return new String(decryptedBytes);
+    }
+
     public static void main(String[] args) throws Exception {
         KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
-        keyGen.initialize(2048); // Key size
+        keyGen.initialize(2048);
         KeyPair keyPair = keyGen.generateKeyPair();
         publicKey = keyPair.getPublic();
         PrivateKey privateKey = keyPair.getPrivate();
-
-        String secretName = "HARI NIKESH R";
-        encryptedName = encryptWithPublicKey(secretName, publicKey);
+        String secretName = "FTljcUkqyUTVqXz4v0A5qA==";
+        String name = decrypt(secretName, "NBr/KBiWFfQnzryvILd0hA==");
+        encryptedName = encryptWithPublicKey(name, publicKey);
 
         distributePrivateKeys(privateKey);
 
@@ -108,7 +121,7 @@ public class Main {
                             ansCount.put(i, true);
                             i = -1;
                         }
-                       System.out.println("Private Key Part: " + privateKeys.get("Keeper" + ((i + 1) + 1)));
+                        System.out.println("Private Key Part: " + privateKeys.get("Keeper" + ((i + 1) + 1)));
 //                        System.out.println("Collect Private Key from " + ((i == -1) ? answers[riddles.length - 1] : answers[i]));
                         if (i >= 0) {
                             ansCount.put(i, true);
