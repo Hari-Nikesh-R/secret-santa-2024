@@ -108,7 +108,8 @@ public class Main {
                             ansCount.put(i, true);
                             i = -1;
                         }
-                        System.out.println("Private Key Part: " + privateKeys.get("Keeper" + ((i + 1) + 1)));
+                       System.out.println("Private Key Part: " + privateKeys.get("Keeper" + ((i + 1) + 1)));
+//                        System.out.println("Collect Private Key from " + ((i == -1) ? answers[riddles.length - 1] : answers[i]));
                         if (i >= 0) {
                             ansCount.put(i, true);
                         }
