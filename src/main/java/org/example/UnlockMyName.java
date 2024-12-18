@@ -8,7 +8,7 @@ import java.util.random.RandomGenerator;
 public class UnlockMyName {
     // Simulated key storage
     private static HashMap<String, String> keys = new HashMap<>();
-    private static String secretName = "CHATGPT"; // Replace with your name
+    private static String secretName = "HARI NIKESH R"; // Replace with your name
     private static String encryptedName = encryptName(secretName);
     private static int randomNumber = (int)(Math.random() * 50 + 1);
 
