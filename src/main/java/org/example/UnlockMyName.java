@@ -10,7 +10,7 @@ public class UnlockMyName {
     private static HashMap<String, String> keys = new HashMap<>();
     private static String secretName = "HARI NIKESH R"; // Replace with your name
     private static String encryptedName = encryptName(secretName);
-    private static int randomNumber = (int)(Math.random() * 50 + 1);
+    private static int randomNumber;
 
 
     public static void main(String[] args) {
@@ -71,6 +71,7 @@ public class UnlockMyName {
 
 
     private static String encryptName(String name) {
+        randomNumber = new Random().nextInt(26);
         StringBuilder encrypted = new StringBuilder();
         for (char c : name.toCharArray()) {
             encrypted.append((char) (c + randomNumber));
