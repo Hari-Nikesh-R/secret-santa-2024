@@ -3,6 +3,13 @@ package org.example;
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.KeyFactory;
@@ -10,18 +17,52 @@ import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.PrivateKey;
 import java.security.PublicKey;
-import java.security.SecureRandom;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Scanner;
 
 public class Main {
     private static final Map<String, String> privateKeys = new HashMap<>();
     private static String encryptedName;
     private static PublicKey publicKey;
+    private static JFrame frame;
+    private static JTextField keyInputField;
+    private static JButton submitButton;
+    private static JLabel messageLabel;
+
+    private static void createAndShowGUI() {
+        frame = new JFrame("Secret Santa Decryption");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(400, 200);
+        frame.setLocationRelativeTo(null); // Center the frame
+        frame.setLayout(new FlowLayout());
+
+        messageLabel = new JLabel("Enter combined private keys:");
+        keyInputField = new JTextField(20);  // JTextField for input (20 columns)
+        submitButton = new JButton("Submit");
+        frame.add(messageLabel);
+        frame.add(keyInputField);
+        frame.add(submitButton);
+
+        // Action listener for button
+        submitButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                String combinedKeys = keyInputField.getText().trim(); // Get text from input field
+                try {
+                    String decryptedName = decryptWithPrivateKey(encryptedName, combinedKeys);
+                    JOptionPane.showMessageDialog(frame, "Congratulations! Your Secret Santa is: " + decryptedName);
+                    System.exit(0); // Exit or close after successful decryption
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(frame, "Incorrect key combination. Try again!", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+
+        frame.setVisible(true);
+    }
+
 
     private static String decrypt(String encryptedText, String secretKey) throws Exception {
         byte[] decodedKey = Base64.getDecoder().decode(secretKey);
@@ -65,23 +106,10 @@ public class Main {
         System.out.println("2. Collect the private key parts from each keeper.");
         System.out.println("3. Combine the keys in the correct order to decrypt the name.");
         System.out.println("4. Input the combined keys to unlock the secret name.\n");
-
-        playGame();
-        Scanner scanner = new Scanner(System.in);
-        while (true) {
-
-            System.out.print("\nEnter combined private keys in order: ");
-            String combinedKeys = scanner.nextLine();
-
-            try {
-                String decryptedName = decryptWithPrivateKey(encryptedName, combinedKeys);
-                System.out.println("\nCongratulations! You're Secret Santa is : " + decryptedName);
-                break;
-            } catch (Exception e) {
-                System.out.println("\nIncorrect key combination. Try again!");
-            }
-        }
-        scanner.close();
+        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+        playGame(reader);
+        SwingUtilities.invokeLater(Main::createAndShowGUI);
+        reader.close();
     }
 
     private static String encryptWithPublicKey(String data, PublicKey publicKey) throws Exception {
@@ -99,7 +127,7 @@ public class Main {
         return new String(decryptedBytes);
     }
 
-    private static void distributePrivateKeys(PrivateKey privateKey) throws Exception {
+    private static void distributePrivateKeys(PrivateKey privateKey) {
         byte[] privateKeyBytes = privateKey.getEncoded();
         int partSize = privateKeyBytes.length / 3;
 
@@ -113,8 +141,7 @@ public class Main {
         return keyFactory.generatePrivate(new PKCS8EncodedKeySpec(combinedKeyBytes));
     }
 
-    private static void playGame() {
-        Scanner scanner = new Scanner(System.in);
+    private static void playGame(BufferedReader reader) throws IOException {
         String[] riddles = {
                 "I'm senior than you. I'm part of your team. I love sports and I'm friendly. Who am I?",
                 "We talk occasionally. I switched 3 teams within our org. One of your friends (Monisha, Dharshini, JeevaDharshini)[anyone] already worked with me. Who am I?",
@@ -127,7 +154,7 @@ public class Main {
                 if (Boolean.FALSE.equals(ansCount.getOrDefault(i, false))) {
                     System.out.println("\nRiddle " + (i + 1) + ": " + riddles[i]);
                     System.out.print("Your answer: ");
-                    String response = scanner.nextLine();
+                    String response = reader.readLine();
 
                     if (response.equalsIgnoreCase(answers[i]) || response.contains(answers[i])) {
                         System.out.println("Correct! You've identified Keeper" + (i + 1));
@@ -135,8 +162,7 @@ public class Main {
                             ansCount.put(i, true);
                             i = -1;
                         }
-                        System.out.println("Private Key Part: " + privateKeys.get("Keeper" + ((i + 1) + 1)));
-//                        System.out.println("Collect Private Key from " + ((i == -1) ? answers[riddles.length - 1] : answers[i]));
+                        System.out.println("Collect Private Key from " + ((i == -1) ? answers[riddles.length - 1] : answers[i]));
                         if (i >= 0) {
                             ansCount.put(i, true);
                         }
