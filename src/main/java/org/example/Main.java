@@ -3,11 +3,14 @@ package org.example;
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.security.SecureRandom;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.Arrays;
 import java.util.Base64;
@@ -32,11 +35,24 @@ public class Main {
     }
 
     public static void main(String[] args) throws Exception {
-        KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
-        keyGen.initialize(2048);
-        KeyPair keyPair = keyGen.generateKeyPair();
-        publicKey = keyPair.getPublic();
-        PrivateKey privateKey = keyPair.getPrivate();
+        String privateKeyFilePath = "private_key.txt";
+        String publicKeyFilePath = "public_key.txt";
+        PrivateKey privateKey;
+
+        if (Files.exists(Paths.get(privateKeyFilePath)) && Files.exists(Paths.get(publicKeyFilePath))) {
+            privateKey = KeyUtils.loadPrivateKey(privateKeyFilePath);
+            publicKey = KeyUtils.loadPublicKey(publicKeyFilePath);
+        } else {
+            KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
+            keyGen.initialize(2048);
+            KeyPair keyPair = keyGen.generateKeyPair();
+            privateKey = keyPair.getPrivate();
+            publicKey = keyPair.getPublic();
+            KeyUtils.saveKeyPair(keyPair, privateKeyFilePath, publicKeyFilePath);
+            System.out.println("Keys generated and saved!");
+        }
+
+
         String secretName = "FTljcUkqyUTVqXz4v0A5qA==";
         String name = decrypt(secretName, "NBr/KBiWFfQnzryvILd0hA==");
         encryptedName = encryptWithPublicKey(name, publicKey);
@@ -64,10 +80,8 @@ public class Main {
             } catch (Exception e) {
                 System.out.println("\nIncorrect key combination. Try again!");
             }
-
         }
         scanner.close();
-
     }
 
     private static String encryptWithPublicKey(String data, PublicKey publicKey) throws Exception {
